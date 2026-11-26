@@ -493,7 +493,7 @@
   </div>
 
   <!-- חלון עריכת כפתורים למורה -->
-  <div class="modal-backdrop open" id="editorModal" onclick="if(event.target===this) closeEditorModal()">
+  <div class="modal-backdrop" id="editorModal" onclick="if(event.target===this) closeEditorModal()">
     <div class="modal-box">
       <div class="modal-header">
         <h2>🛠️ עריכת כפתורי "הערוץ המדעי"</h2>
@@ -518,89 +518,7 @@
       </div>
 
       <h3 style="font-size: 1.1rem; margin-bottom: 12px; color: #7dd3fc;">רשימת כפתורי הפעילויות:</h3>
-      <div id="editorItemsList"><div class="editor-item">
-          <div class="editor-row">
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">אייקון</label>
-              <input type="text" class="input-field" style="text-align:center; font-size:1.3rem;" value="💧" onchange="updateActField(0, 'icon', this.value)">
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">שם הפעילות (על הכפתור)</label>
-              <input type="text" class="input-field" value="תעלומת מתח הפנים" onchange="updateActField(0, 'title', this.value)">
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">צבע מסגרת</label>
-              <select class="input-field" onchange="updateActField(0, 'color', this.value)">
-                <option value="blue" selected="">כחול מדעי</option>
-                <option value="green">ירוק מעבדה</option>
-                <option value="purple">סגול חלל</option>
-                <option value="orange">כתום אנרגיה</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">תיאור קצר מתחת לשם</label>
-              <input type="text" class="input-field" value="מעבדת המים הכיתתית – ניסוי וחקר אינטראקטיבי" onchange="updateActField(0, 'subtitle', this.value)">
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">קישור לקובץ פעילות או אתר (URL / נתיב)</label>
-              <input type="text" dir="ltr" class="input-field" value="https://madakidsthesciencechannel.github.io/surface-tension/" onchange="updateActField(0, 'url', this.value)">
-            </div>
-          </div>
-
-          <div class="editor-actions">
-            <label class="toggle-label">
-              <input type="checkbox" checked="" onchange="updateActField(0, 'visible', this.checked)">
-              <span>הצג כפתור זה לתלמידים</span>
-            </label>
-            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.82rem;" onclick="removeActivityRow(0)">
-              🗑️ מחק כפתור
-            </button>
-          </div>
-        </div><div class="editor-item">
-          <div class="editor-row">
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">אייקון</label>
-              <input type="text" class="input-field" style="text-align:center; font-size:1.3rem;" value="🌐" onchange="updateActField(1, 'icon', this.value)">
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">שם הפעילות (על הכפתור)</label>
-              <input type="text" class="input-field" value="לאתר הערוץ המדעי" onchange="updateActField(1, 'title', this.value)">
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">צבע מסגרת</label>
-              <select class="input-field" onchange="updateActField(1, 'color', this.value)">
-                <option value="blue">כחול מדעי</option>
-                <option value="green">ירוק מעבדה</option>
-                <option value="purple" selected="">סגול חלל</option>
-                <option value="orange">כתום אנרגיה</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">תיאור קצר מתחת לשם</label>
-              <input type="text" class="input-field" value="מאמרים, סרטונים ותכנים נוספים באתר הראשי" onchange="updateActField(1, 'subtitle', this.value)">
-            </div>
-            <div>
-              <label style="font-size:0.8rem; color:#94a3b8;">קישור לקובץ פעילות או אתר (URL / נתיב)</label>
-              <input type="text" dir="ltr" class="input-field" value="https://www.wix.com" onchange="updateActField(1, 'url', this.value)">
-            </div>
-          </div>
-
-          <div class="editor-actions">
-            <label class="toggle-label">
-              <input type="checkbox" checked="" onchange="updateActField(1, 'visible', this.checked)">
-              <span>הצג כפתור זה לתלמידים</span>
-            </label>
-            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.82rem;" onclick="removeActivityRow(1)">
-              🗑️ מחק כפתור
-            </button>
-          </div>
-        </div></div>
+      <div id="editorItemsList"></div>
 
       <button class="btn btn-purple" style="margin-bottom: 22px;" onclick="addNewActivityRow()">
         ➕ הוסף כפתור פעילות חדש
@@ -662,6 +580,12 @@
 
     // טעינת ההגדרות (בודק קודם אם יש hub_config.json בתיקייה/בגיטהאב, או שמירה מקומית)
     async function initHub() {
+      // וידוא שחלונות המורה סגורים תמיד בטעינה ראשונית
+      document.getElementById("authModal").classList.remove("open");
+      document.getElementById("editorModal").classList.remove("open");
+      document.getElementById("editorItemsList").innerHTML = "";
+      document.getElementById("teacherPinInput").value = "";
+
       const savedLocal = localStorage.getItem(STORAGE_KEY);
       if (savedLocal) {
         try {
@@ -863,10 +787,16 @@
       }
     }
 
-    // ייצוא קובץ haarotz_hamdai_hub.html מעודכן עם הכפתורים החדשים מוטמעים בתוכו (מוכן להעלאה ל-GitHub!)
+    // ייצוא קובץ HTML מעודכן עם הכפתורים החדשים מוטמעים בתוכו (מוכן להעלאה ל-GitHub!)
     function exportUpdatedHtmlFile() {
       collectEditorHeader();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(hubConfig));
+
+      // סגירת חלונות העריכה וניקוי תוכן זמני לפני צילום ה-HTML כדי שהקובץ ייפתח לתלמידים במצב נקי
+      closeEditorModal();
+      closeAuthModal();
+      document.getElementById("editorItemsList").innerHTML = "";
+      document.getElementById("teacherPinInput").value = "";
       renderHub();
 
       const currentHtml = document.documentElement.outerHTML;
@@ -881,7 +811,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "haarotz_hamdai_hub.html";
+      a.download = "index.html";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
