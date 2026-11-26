@@ -427,9 +427,80 @@
       height: 18px;
       accent-color: #38bdf8;
     }
+
+    /* מציג פעילות פנימי במסך מלא (שומר על חלון APP נקי ללא שורת כתובת ולשוניות) */
+    .activity-viewer {
+      position: fixed;
+      inset: 0;
+      background: #070b19;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+    }
+
+    .activity-viewer.open {
+      display: flex;
+    }
+
+    .viewer-topbar {
+      height: 48px;
+      background: rgba(15, 23, 42, 0.96);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      color: #f8fafc;
+    }
+
+    .viewer-back-btn {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #082f49;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .viewer-back-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
+    }
+
+    .viewer-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #bae6fd;
+    }
+
+    .viewer-frame {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: #ffffff;
+    }
   </style>
 </head>
 <body>
+
+  <!-- מציג הפעילות הפנימי (מונע קפיצה לדפדפן Edge רגיל עם לשוניות) -->
+  <div class="activity-viewer" id="activityViewer">
+    <div class="viewer-topbar">
+      <button class="viewer-back-btn" onclick="closeActivityViewer()">
+        <span>🏠</span>
+        <span>חזרה לערוץ המדעי</span>
+      </button>
+      <div class="viewer-title" id="viewerActivityTitle">💧 תעלומת מתח הפנים</div>
+      <div style="width: 120px;"></div>
+    </div>
+    <iframe id="activityFrame" class="viewer-frame" src="about:blank" allow="fullscreen; autoplay"></iframe>
+  </div>
 
   <!-- קנבס לאנימציית חלקיקי מדע בלולאה ברקע -->
   <canvas id="bgCanvas" width="1262" height="662"></canvas>
@@ -447,21 +518,21 @@
     <h1 class="main-title" id="hubTitle">הערוץ המדעי</h1>
     <p class="main-subtitle" id="hubSubtitle">בחרו את הפעילות של השיעור והתחילו לחקור!</p>
 
-    <div class="buttons-grid" id="buttonsGrid"><a class="activity-btn color-blue" href="https://madakidsthesciencechannel.github.io/surface-tension/" target="_blank">
+    <div class="buttons-grid" id="buttonsGrid"><button type="button" class="activity-btn color-blue">
           <div class="btn-icon">💧</div>
           <div class="btn-content">
             <div class="btn-title">תעלומת מתח הפנים</div>
             <div class="btn-subtitle">מעבדת המים הכיתתית – ניסוי וחקר אינטראקטיבי</div>
           </div>
           <div class="btn-arrow">⬅️</div>
-        </a><a class="activity-btn color-purple" href="https://www.wix.com" target="_blank">
+        </button><button type="button" class="activity-btn color-purple">
           <div class="btn-icon">🌐</div>
           <div class="btn-content">
             <div class="btn-title">לאתר הערוץ המדעי</div>
             <div class="btn-subtitle">מאמרים, סרטונים ותכנים נוספים באתר הראשי</div>
           </div>
           <div class="btn-arrow">⬅️</div>
-        </a></div>
+        </button></div>
   </main>
 
   <!-- כפתור כניסת מורה (ניתן גם בלחיצה על Ctrl+Shift+M) -->
@@ -580,9 +651,11 @@
 
     // טעינת ההגדרות (בודק קודם אם יש hub_config.json בתיקייה/בגיטהאב, או שמירה מקומית)
     async function initHub() {
-      // וידוא שחלונות המורה סגורים תמיד בטעינה ראשונית
+      // וידוא שחלונות המורה ומציג הפעילות סגורים תמיד בטעינה ראשונית
       document.getElementById("authModal").classList.remove("open");
       document.getElementById("editorModal").classList.remove("open");
+      document.getElementById("activityViewer").classList.remove("open");
+      document.getElementById("activityFrame").src = "about:blank";
       document.getElementById("editorItemsList").innerHTML = "";
       document.getElementById("teacherPinInput").value = "";
 
@@ -607,6 +680,19 @@
       initFloatingScienceIcons();
     }
 
+    // פתיחת פעילות בתוך חלון ה-APP הנקי (ללא מעבר לדפדפן עם לשוניות ושורת כתובת)
+    function launchActivity(act) {
+      if (!act || !act.url) return;
+      document.getElementById("viewerActivityTitle").textContent = (act.icon || "🔬") + " " + (act.title || "");
+      document.getElementById("activityFrame").src = act.url;
+      document.getElementById("activityViewer").classList.add("open");
+    }
+
+    function closeActivityViewer() {
+      document.getElementById("activityViewer").classList.remove("open");
+      document.getElementById("activityFrame").src = "about:blank";
+    }
+
     // ציור הכותרת והכפתורים לתלמידים
     function renderHub() {
       document.getElementById("hubTitle").textContent = hubConfig.title || "הערוץ המדעי";
@@ -618,16 +704,12 @@
       const visibleActivities = (hubConfig.activities || []).filter(a => a.visible !== false);
 
       visibleActivities.forEach(act => {
-        const a = document.createElement("a");
-        a.className = `activity-btn color-${act.color || 'blue'}`;
-        a.href = act.url || "#";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `activity-btn color-${act.color || 'blue'}`;
+        btn.onclick = () => launchActivity(act);
 
-        // אם זה קישור חיצוני לאינטרנט, נפתח בטאב חדש; אם זה קובץ פעילות מקומי/במאגר, נפתח באותו חלון או טאב
-        if (act.url && (act.url.startsWith("http://") || act.url.startsWith("https://"))) {
-          a.target = "_blank";
-        }
-
-        a.innerHTML = `
+        btn.innerHTML = `
           <div class="btn-icon">${act.icon || '🔬'}</div>
           <div class="btn-content">
             <div class="btn-title">${escapeHtml(act.title)}</div>
@@ -635,7 +717,7 @@
           </div>
           <div class="btn-arrow">⬅️</div>
         `;
-        grid.appendChild(a);
+        grid.appendChild(btn);
       });
     }
 
@@ -795,6 +877,7 @@
       // סגירת חלונות העריכה וניקוי תוכן זמני לפני צילום ה-HTML כדי שהקובץ ייפתח לתלמידים במצב נקי
       closeEditorModal();
       closeAuthModal();
+      closeActivityViewer();
       document.getElementById("editorItemsList").innerHTML = "";
       document.getElementById("teacherPinInput").value = "";
       renderHub();
